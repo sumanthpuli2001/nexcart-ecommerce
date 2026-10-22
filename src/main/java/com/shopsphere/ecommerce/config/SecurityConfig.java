@@ -19,6 +19,8 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
 import java.util.Collections;
 
 @Configuration
@@ -79,7 +81,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
                 .requestMatchers("/", "/category/**", "/search/**", "/product/**").permitAll()
-                .requestMatchers("/login", "/register").permitAll()
+                .requestMatchers("/login", "/register", "/logout").permitAll()
                 .requestMatchers("/api/products/**").permitAll()
                 .requestMatchers("/admin/**", "/api/orders/**").hasRole("ADMIN")
                 .requestMatchers("/cart/**", "/checkout/**", "/order/**", "/profile/**", "/wishlist/**").authenticated()
@@ -95,9 +97,10 @@ public class SecurityConfig {
                 .permitAll()
             )
             .logout(logout -> logout
-                .logoutUrl("/logout")
+                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                 .logoutSuccessUrl("/login?logout=true")
                 .invalidateHttpSession(true)
+                .clearAuthentication(true)
                 .deleteCookies("JSESSIONID")
                 .permitAll()
             )
