@@ -48,6 +48,30 @@ public class ProductService {
         return categoryRepository.findById(id);
     }
 
+    public List<Product> sortProducts(List<Product> products, String sortBy) {
+        if (products == null || sortBy == null || sortBy.trim().isEmpty()) {
+            return products;
+        }
+        List<Product> sorted = new java.util.ArrayList<>(products);
+        switch (sortBy.trim().toLowerCase()) {
+            case "price_asc":
+                sorted.sort(java.util.Comparator.comparing(Product::getPrice));
+                break;
+            case "price_desc":
+                sorted.sort(java.util.Comparator.comparing(Product::getPrice).reversed());
+                break;
+            case "rating":
+                sorted.sort(java.util.Comparator.comparing(Product::getRating, java.util.Comparator.nullsLast(java.util.Comparator.naturalOrder())).reversed());
+                break;
+            case "newest":
+                sorted.sort(java.util.Comparator.comparing(Product::getId).reversed());
+                break;
+            default:
+                break;
+        }
+        return sorted;
+    }
+
     public Product saveProduct(Product product) {
         return productRepository.save(product);
     }

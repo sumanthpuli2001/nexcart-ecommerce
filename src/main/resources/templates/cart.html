@@ -30,6 +30,12 @@
                     <span>Shop Catalog</span>
                 </a>
 
+                <a th:href="@{/wishlist}" class="nav-link">
+                    <i class="fa-solid fa-heart fs-5 text-danger"></i>
+                    <span>My Wishlist</span>
+                    <span class="badge bg-danger rounded-pill ms-auto" th:text="${wishlistCount}">0</span>
+                </a>
+
                 <a th:if="${session.LOGGED_IN_USER != null}" th:href="@{/profile}" class="nav-link">
                     <i class="fa-solid fa-id-card fs-5 text-info"></i>
                     <span>Profile Details</span>
@@ -138,9 +144,12 @@
                                     </td>
                                     <td class="fw-bold text-primary" th:text="${'₹' + #numbers.formatDecimal(item.subtotal, 1, 2)}">₹1,998.00</td>
                                     <td class="text-end pe-4">
-                                        <a th:href="@{/cart/remove/{productId}(productId=${item.product.id})}" class="btn btn-sm btn-outline-danger" title="Remove Item">
-                                            <i class="fa-solid fa-trash-can"></i>
-                                        </a>
+                                        <form th:action="@{/cart/remove}" method="post" class="d-inline">
+                                            <input type="hidden" name="productId" th:value="${item.product.id}">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove Item">
+                                                <i class="fa-solid fa-trash-can"></i>
+                                            </button>
+                                        </form>
                                     </td>
                                 </tr>
                             </tbody>

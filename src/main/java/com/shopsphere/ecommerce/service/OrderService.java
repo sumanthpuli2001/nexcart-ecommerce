@@ -48,14 +48,16 @@ public class OrderService {
         order.setDiscountAmount(cart.getDiscountAmount());
 
         for (CartItemDto itemDto : cart.getItems()) {
-            Product product = itemDto.getProduct();
+            // Concurrency-safe pessimistic write lock on the product row
+            Product product = productRepository.findByIdWithLock(itemDto.getProduct().getId())
+                    .orElseThrow(() -> new IllegalStateException("Product not found ID: " + itemDto.getProduct().getId()));
             
             // Check stock availability
             if (product.getStockQuantity() < itemDto.getQuantity()) {
-                throw new IllegalStateException("Insufficient stock for product: " + product.getName());
+                throw new IllegalStateException("Insufficient stock for: " + product.getName() + " (Only " + product.getStockQuantity() + " remaining)");
             }
 
-            // Deduct stock
+            // Deduct stock under database row lock
             product.setStockQuantity(product.getStockQuantity() - itemDto.getQuantity());
             productRepository.save(product);
 
@@ -94,6 +96,35 @@ public class OrderService {
     public Order updateOrderStatus(Long orderId, OrderStatus newStatus) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new IllegalArgumentException("Order not found with ID: " + orderId));
+        
+        OrderStatus oldStatus = order.getStatus();
+        if (oldStatus == newStatus) {
+            return order;
+        }
+
+        // Automatic Inventory Restock on Order Cancellation
+        if (newStatus == OrderStatus.CANCELLED && oldStatus != OrderStatus.CANCELLED) {
+            for (OrderItem item : order.getItems()) {
+                if (item.getProduct() != null) {
+                    Product product = productRepository.findByIdWithLock(item.getProduct().getId()).orElse(item.getProduct());
+                    product.setStockQuantity(product.getStockQuantity() + item.getQuantity());
+                    productRepository.save(product);
+                }
+            }
+        } else if (oldStatus == OrderStatus.CANCELLED && newStatus != OrderStatus.CANCELLED) {
+            // Re-validate stock if un-cancelling an order
+            for (OrderItem item : order.getItems()) {
+                if (item.getProduct() != null) {
+                    Product product = productRepository.findByIdWithLock(item.getProduct().getId()).orElse(item.getProduct());
+                    if (product.getStockQuantity() < item.getQuantity()) {
+                        throw new IllegalStateException("Cannot reinstate order. Insufficient stock for: " + product.getName());
+                    }
+                    product.setStockQuantity(product.getStockQuantity() - item.getQuantity());
+                    productRepository.save(product);
+                }
+            }
+        }
+
         order.setStatus(newStatus);
         return orderRepository.save(order);
     }

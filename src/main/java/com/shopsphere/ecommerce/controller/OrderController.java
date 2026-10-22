@@ -9,6 +9,7 @@ import com.shopsphere.ecommerce.repository.CouponRepository;
 import com.shopsphere.ecommerce.service.CartService;
 import com.shopsphere.ecommerce.service.OrderService;
 import com.shopsphere.ecommerce.service.ProductService;
+import com.shopsphere.ecommerce.service.WishlistService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
@@ -30,15 +31,24 @@ public class OrderController {
     private final CartService cartService;
     private final ProductService productService;
     private final CouponRepository couponRepository;
+    private final WishlistService wishlistService;
 
     public OrderController(OrderService orderService,
                            CartService cartService,
                            ProductService productService,
-                           CouponRepository couponRepository) {
+                           CouponRepository couponRepository,
+                           WishlistService wishlistService) {
         this.orderService = orderService;
         this.cartService = cartService;
         this.productService = productService;
         this.couponRepository = couponRepository;
+        this.wishlistService = wishlistService;
+    }
+
+    private void populateUserAttributes(Model model, HttpSession session) {
+        User loggedInUser = (User) session.getAttribute(AuthController.LOGGED_IN_USER_SESSION_KEY);
+        model.addAttribute("cartItemCount", cartService.getCart(session).getTotalItemsCount());
+        model.addAttribute("wishlistCount", loggedInUser != null ? wishlistService.getWishlistCount(loggedInUser) : 0);
     }
 
     @GetMapping("/checkout")
@@ -66,7 +76,7 @@ public class OrderController {
         model.addAttribute("cart", cart);
         model.addAttribute("availableCoupons", couponRepository.findAll());
         model.addAttribute("categories", productService.getAllCategories());
-        model.addAttribute("cartItemCount", cart.getTotalItemsCount());
+        populateUserAttributes(model, session);
         return "checkout";
     }
 
@@ -134,7 +144,7 @@ public class OrderController {
         if (bindingResult.hasErrors()) {
             model.addAttribute("cart", cart);
             model.addAttribute("categories", productService.getAllCategories());
-            model.addAttribute("cartItemCount", cart.getTotalItemsCount());
+            populateUserAttributes(model, session);
             return "checkout";
         }
 
@@ -156,7 +166,7 @@ public class OrderController {
 
         model.addAttribute("order", order);
         model.addAttribute("categories", productService.getAllCategories());
-        model.addAttribute("cartItemCount", cartService.getCart(session).getTotalItemsCount());
+        populateUserAttributes(model, session);
         return "order-success";
     }
 
@@ -171,7 +181,7 @@ public class OrderController {
         List<Order> orders = orderService.getUserOrders(loggedInUser);
         model.addAttribute("orders", orders);
         model.addAttribute("categories", productService.getAllCategories());
-        model.addAttribute("cartItemCount", cartService.getCart(session).getTotalItemsCount());
+        populateUserAttributes(model, session);
         return "order-history";
     }
 }

@@ -1,8 +1,10 @@
 package com.shopsphere.ecommerce.controller;
 
 import com.shopsphere.ecommerce.dto.Cart;
+import com.shopsphere.ecommerce.model.User;
 import com.shopsphere.ecommerce.service.CartService;
 import com.shopsphere.ecommerce.service.ProductService;
+import com.shopsphere.ecommerce.service.WishlistService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,15 +19,20 @@ public class CartController {
 
     private final CartService cartService;
     private final ProductService productService;
+    private final WishlistService wishlistService;
 
-    public CartController(CartService cartService, ProductService productService) {
+    public CartController(CartService cartService,
+                          ProductService productService,
+                          WishlistService wishlistService) {
         this.cartService = cartService;
         this.productService = productService;
+        this.wishlistService = wishlistService;
     }
 
     @GetMapping("/cart")
     public String viewCart(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
-        if (session.getAttribute(AuthController.LOGGED_IN_USER_SESSION_KEY) == null) {
+        User loggedInUser = (User) session.getAttribute(AuthController.LOGGED_IN_USER_SESSION_KEY);
+        if (loggedInUser == null) {
             redirectAttributes.addFlashAttribute("errorMessage", "Please sign in to view your shopping cart!");
             return "redirect:/login";
         }
@@ -33,6 +40,7 @@ public class CartController {
         model.addAttribute("cart", cart);
         model.addAttribute("categories", productService.getAllCategories());
         model.addAttribute("cartItemCount", cart.getTotalItemsCount());
+        model.addAttribute("wishlistCount", wishlistService.getWishlistCount(loggedInUser));
         return "cart";
     }
 
@@ -63,8 +71,19 @@ public class CartController {
         return "redirect:/cart";
     }
 
+    @PostMapping("/cart/remove")
+    public String removeFromCartPost(@RequestParam("productId") Long productId,
+                                     HttpSession session,
+                                     RedirectAttributes redirectAttributes) {
+        cartService.removeFromCart(session, productId);
+        redirectAttributes.addFlashAttribute("successMessage", "Item removed from shopping cart.");
+        return "redirect:/cart";
+    }
+
     @GetMapping("/cart/remove/{productId}")
-    public String removeFromCart(@PathVariable Long productId, HttpSession session, RedirectAttributes redirectAttributes) {
+    public String removeFromCart(@PathVariable Long productId,
+                                 HttpSession session,
+                                 RedirectAttributes redirectAttributes) {
         cartService.removeFromCart(session, productId);
         redirectAttributes.addFlashAttribute("successMessage", "Item removed from shopping cart.");
         return "redirect:/cart";

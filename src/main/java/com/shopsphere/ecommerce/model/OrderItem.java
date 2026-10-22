@@ -19,6 +19,10 @@ public class OrderItem {
     @JoinColumn(name = "product_id")
     private Product product;
 
+    private String productName;
+
+    private String productImageUrl;
+
     private Integer quantity;
 
     private BigDecimal unitPrice;
@@ -33,6 +37,10 @@ public class OrderItem {
         this.quantity = quantity;
         this.unitPrice = unitPrice;
         this.subtotal = unitPrice.multiply(BigDecimal.valueOf(quantity));
+        if (product != null) {
+            this.productName = product.getName();
+            this.productImageUrl = product.getImageUrl();
+        }
     }
 
     // Getters and Setters
@@ -58,6 +66,28 @@ public class OrderItem {
 
     public void setProduct(Product product) {
         this.product = product;
+    }
+
+    public String getProductName() {
+        if (productName != null) {
+            return productName;
+        }
+        return product != null ? product.getName() : "Archived Item";
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+
+    public String getProductImageUrl() {
+        if (productImageUrl != null) {
+            return productImageUrl;
+        }
+        return product != null ? product.getImageUrl() : null;
+    }
+
+    public void setProductImageUrl(String productImageUrl) {
+        this.productImageUrl = productImageUrl;
     }
 
     public Integer getQuantity() {

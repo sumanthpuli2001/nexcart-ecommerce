@@ -8,6 +8,7 @@ import com.shopsphere.ecommerce.repository.ProductRepository;
 import com.shopsphere.ecommerce.repository.ReviewRepository;
 import com.shopsphere.ecommerce.service.CartService;
 import com.shopsphere.ecommerce.service.ProductService;
+import com.shopsphere.ecommerce.service.WishlistService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,25 +27,38 @@ public class HomeController {
     private final CartService cartService;
     private final ReviewRepository reviewRepository;
     private final ProductRepository productRepository;
+    private final WishlistService wishlistService;
 
     public HomeController(ProductService productService,
                           CartService cartService,
                           ReviewRepository reviewRepository,
-                          ProductRepository productRepository) {
+                          ProductRepository productRepository,
+                          WishlistService wishlistService) {
         this.productService = productService;
         this.cartService = cartService;
         this.reviewRepository = reviewRepository;
         this.productRepository = productRepository;
+        this.wishlistService = wishlistService;
+    }
+
+    private void populateUserAttributes(Model model, HttpSession session) {
+        User loggedInUser = (User) session.getAttribute(AuthController.LOGGED_IN_USER_SESSION_KEY);
+        model.addAttribute("cartItemCount", cartService.getCart(session).getTotalItemsCount());
+        model.addAttribute("wishlistCount", loggedInUser != null ? wishlistService.getWishlistCount(loggedInUser) : 0);
     }
 
     @GetMapping("/")
-    public String index(Model model, HttpSession session) {
+    public String index(@RequestParam(value = "sortBy", required = false) String sortBy,
+                        Model model,
+                        HttpSession session) {
         List<Product> products = productService.getAllProducts();
+        products = productService.sortProducts(products, sortBy);
         List<Category> categories = productService.getAllCategories();
         
         model.addAttribute("products", products);
         model.addAttribute("categories", categories);
-        model.addAttribute("cartItemCount", cartService.getCart(session).getTotalItemsCount());
+        model.addAttribute("currentSort", sortBy);
+        populateUserAttributes(model, session);
         return "index";
     }
 
@@ -58,12 +72,15 @@ public class HomeController {
         Product product = productService.getProductById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Product not found ID: " + id));
 
+        User user = (User) session.getAttribute(AuthController.LOGGED_IN_USER_SESSION_KEY);
+        boolean inWishlist = wishlistService.isInWishlist(user, id);
         List<Review> reviews = reviewRepository.findByProductIdOrderByCreatedAtDesc(id);
 
         model.addAttribute("product", product);
+        model.addAttribute("inWishlist", inWishlist);
         model.addAttribute("reviews", reviews);
         model.addAttribute("categories", productService.getAllCategories());
-        model.addAttribute("cartItemCount", cartService.getCart(session).getTotalItemsCount());
+        populateUserAttributes(model, session);
         return "product-details";
     }
 
@@ -102,27 +119,37 @@ public class HomeController {
     }
 
     @GetMapping("/category/{id}")
-    public String categoryProducts(@PathVariable Long id, Model model, HttpSession session) {
+    public String categoryProducts(@PathVariable Long id,
+                                   @RequestParam(value = "sortBy", required = false) String sortBy,
+                                   Model model,
+                                   HttpSession session) {
         Category category = productService.getCategoryById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Category not found ID: " + id));
 
         List<Product> products = productService.getProductsByCategory(id);
+        products = productService.sortProducts(products, sortBy);
         
         model.addAttribute("selectedCategory", category);
         model.addAttribute("products", products);
         model.addAttribute("categories", productService.getAllCategories());
-        model.addAttribute("cartItemCount", cartService.getCart(session).getTotalItemsCount());
+        model.addAttribute("currentSort", sortBy);
+        populateUserAttributes(model, session);
         return "index";
     }
 
     @GetMapping("/search")
-    public String searchProducts(@RequestParam("query") String query, Model model, HttpSession session) {
+    public String searchProducts(@RequestParam("query") String query,
+                                 @RequestParam(value = "sortBy", required = false) String sortBy,
+                                 Model model,
+                                 HttpSession session) {
         List<Product> products = productService.searchProducts(query);
+        products = productService.sortProducts(products, sortBy);
         
         model.addAttribute("searchQuery", query);
         model.addAttribute("products", products);
         model.addAttribute("categories", productService.getAllCategories());
-        model.addAttribute("cartItemCount", cartService.getCart(session).getTotalItemsCount());
+        model.addAttribute("currentSort", sortBy);
+        populateUserAttributes(model, session);
         return "index";
     }
 }

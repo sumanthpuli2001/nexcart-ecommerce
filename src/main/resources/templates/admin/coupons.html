@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coupons & Discounts - NexCart Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+    <div class="admin-wrapper">
+        
+        <!-- Sidebar Fragment -->
+        <div th:replace="~{fragments/admin-sidebar :: sidebar('coupons')}"></div>
+
+        <!-- Main Content Area -->
+        <main class="admin-main-content">
+            
+            <!-- Top Header -->
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3 bg-white p-3 rounded-4 shadow-sm border">
+                <div>
+                    <h4 class="fw-bold mb-1 text-dark"><i class="fa-solid fa-ticket text-danger me-2"></i>Coupons & Promotional Discounts</h4>
+                    <p class="text-muted small mb-0">Configure discount vouchers, thresholds, and expiry limits for customer checkouts.</p>
+                </div>
+                <button type="button" class="btn btn-warning fw-bold text-dark px-3 py-2" data-bs-toggle="modal" data-bs-target="#addCouponModal">
+                    <i class="fa-solid fa-plus me-1"></i> Create New Coupon
+                </button>
+            </div>
+
+            <div class="container-fluid p-0">
+
+                <!-- Flash Alerts -->
+                <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show rounded-3 shadow-sm" role="alert">
+                    <i class="fa-solid fa-circle-check me-2"></i><span th:text="${successMessage}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show rounded-3 shadow-sm" role="alert">
+                    <i class="fa-solid fa-triangle-exclamation me-2"></i><span th:text="${errorMessage}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <!-- Coupons Table Card -->
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+                    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                        <h6 class="fw-bold mb-0 text-dark">Configured Promotional Coupons (<span th:text="${coupons.size()}">0</span>)</h6>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light text-muted small text-uppercase">
+                                <tr>
+                                    <th style="width: 70px;">ID</th>
+                                    <th>Coupon Code</th>
+                                    <th>Discount Rate</th>
+                                    <th>Min Order Requirement</th>
+                                    <th>Max Cap Discount</th>
+                                    <th>Expiration Date</th>
+                                    <th class="text-center">Status</th>
+                                    <th class="text-end pe-4">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${coupons.empty}">
+                                    <td colspan="8" class="text-center py-5 text-muted">
+                                        <i class="fa-solid fa-ticket fs-2 mb-2 d-block opacity-50"></i>
+                                        No coupon vouchers configured yet. Click "Create New Coupon" to set up your first promo.
+                                    </td>
+                                </tr>
+                                <tr th:each="c : ${coupons}">
+                                    <td class="fw-bold text-muted" th:text="${'#' + c.id}">#1</td>
+                                    <td>
+                                        <span class="badge bg-dark px-3 py-2 fs-6 font-monospace" th:text="${c.code}">WELCOME10</span>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold text-success fs-6" th:text="${c.discountPercent + '% OFF'}">10% OFF</span>
+                                    </td>
+                                    <td>
+                                        <span class="text-muted" th:text="${c.minOrderAmount != null ? '₹' + c.minOrderAmount : 'No Minimum'}">₹500</span>
+                                    </td>
+                                    <td>
+                                        <span class="text-muted" th:text="${c.maxDiscountAmount != null ? '₹' + c.maxDiscountAmount : 'No Limit'}">₹200</span>
+                                    </td>
+                                    <td>
+                                        <span th:if="${c.expiryDate != null}" 
+                                              th:text="${#temporals.format(c.expiryDate, 'dd MMM yyyy')}"
+                                              th:classappend="${c.expiryDate.isBefore(T(java.time.LocalDate).now()) ? 'badge bg-danger-subtle text-danger' : 'text-dark'}">
+                                            31 Dec 2026
+                                        </span>
+                                        <span th:if="${c.expiryDate == null}" class="badge bg-secondary-subtle text-secondary">Never Expires</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <form th:action="@{/admin/coupons/toggle/{id}(id=${c.id})}" method="post" class="d-inline">
+                                            <button type="submit" class="btn btn-sm rounded-pill px-3 py-1 fw-semibold"
+                                                    th:classappend="${c.active ? 'btn-success' : 'btn-outline-secondary'}"
+                                                    th:title="${c.active ? 'Click to deactivate' : 'Click to activate'}">
+                                                <i class="fa-solid fa-power-off me-1"></i>
+                                                <span th:text="${c.active ? 'Active' : 'Inactive'}">Active</span>
+                                            </button>
+                                        </form>
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        <form th:action="@{/admin/coupons/delete/{id}(id=${c.id})}" method="post" 
+                                              onsubmit="return confirm('Are you sure you want to permanently delete this coupon code?');" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="fa-solid fa-trash me-1"></i> Delete
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Add Coupon Modal -->
+    <div class="modal fade" id="addCouponModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header border-bottom">
+                    <h5 class="modal-title fw-bold text-dark"><i class="fa-solid fa-ticket me-2 text-danger"></i>Create New Discount Coupon</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form th:action="@{/admin/coupons/add}" method="post">
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Coupon Promo Code <span class="text-danger">*</span></label>
+                            <input type="text" name="code" class="form-control text-uppercase font-monospace" placeholder="e.g. DIWALI25" required minlength="3">
+                            <small class="text-muted">Enter uppercase alphanumeric code (letters & numbers only).</small>
+                        </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-6">
+                                <label class="form-label fw-semibold">Discount (%) <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="number" name="discountPercent" class="form-control" placeholder="10" min="1" max="90" required>
+                                    <span class="input-group-text">%</span>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fw-semibold">Max Discount (₹)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₹</span>
+                                    <input type="number" name="maxDiscountAmount" class="form-control" placeholder="500" min="1" step="0.01">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-6">
+                                <label class="form-label fw-semibold">Min Order Amount (₹)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₹</span>
+                                    <input type="number" name="minOrderAmount" class="form-control" placeholder="999" min="0" step="0.01">
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fw-semibold">Expiry Date (Optional)</label>
+                                <input type="date" name="expiryDate" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-top bg-light">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-warning fw-bold text-dark">Save & Enable Coupon</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notice - NexCart Store</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="bg-light d-flex align-items-center justify-content-center min-vh-100">
+
+    <div class="container text-center py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card border-0 shadow-lg rounded-4 p-4 p-md-5 bg-white">
+                    <div class="mb-4">
+                        <div class="d-inline-flex p-4 rounded-circle bg-warning-subtle text-warning mb-3">
+                            <i class="fa-solid fa-triangle-exclamation display-4"></i>
+                        </div>
+                        <h2 class="fw-bold text-dark" th:text="${errorTitle != null ? errorTitle : 'Something Went Wrong'}">Something Went Wrong</h2>
+                        <span class="badge bg-secondary-subtle text-secondary px-3 py-1 rounded-pill" th:if="${statusCode != null}" th:text="'Status Code: ' + ${statusCode}">Status Code: 500</span>
+                    </div>
+
+                    <p class="text-muted fs-6 mb-4" th:text="${errorMessage != null ? errorMessage : 'The server encountered an error while processing your request. Please return to the storefront.'}">
+                        The server encountered an error while processing your request.
+                    </p>
+
+                    <div class="d-flex flex-wrap justify-content-center gap-3">
+                        <a th:href="@{/}" class="btn btn-warning fw-bold px-4 py-2">
+                            <i class="fa-solid fa-house me-1"></i> Return to Storefront
+                        </a>
+                        <a th:href="@{/cart}" class="btn btn-outline-secondary fw-semibold px-4 py-2">
+                            <i class="fa-solid fa-cart-shopping me-1"></i> View Cart
+                        </a>
+                    </div>
+                </div>
+
+                <div class="mt-4 text-muted small">
+                    <p class="mb-0">&copy; 2026 NexCart E-Commerce. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

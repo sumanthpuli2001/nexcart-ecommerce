@@ -12,54 +12,8 @@
 
     <div class="admin-wrapper">
         
-        <!-- Left Sidebar Navigation -->
-        <aside class="admin-sidebar">
-            <div class="admin-sidebar-header">
-                <a th:href="@{/admin/dashboard}" class="text-decoration-none d-flex align-items-center gap-2">
-                    <i class="fa-solid fa-crown text-warning fs-3"></i>
-                    <span class="fs-4 fw-bold text-white">NexCart</span>
-                    <span class="badge bg-danger text-uppercase px-2 py-0.5 ms-1" style="font-size: 0.65rem;">ADMIN</span>
-                </a>
-            </div>
-
-            <div class="admin-sidebar-menu">
-                <div class="sidebar-heading small text-uppercase fw-bold mb-2 ps-2">Main Menu</div>
-                
-                <a th:href="@{/admin/dashboard}" class="nav-link">
-                    <i class="fa-solid fa-chart-line fs-5"></i>
-                    <span>Dashboard Overview</span>
-                </a>
-
-                <a th:href="@{/admin/products}" class="nav-link">
-                    <i class="fa-solid fa-boxes-stacked fs-5"></i>
-                    <span>Product Catalog</span>
-                </a>
-
-                <a th:href="@{/admin/orders}" class="nav-link active">
-                    <i class="fa-solid fa-receipt fs-5"></i>
-                    <span>Customer Orders</span>
-                </a>
-
-                <a th:href="@{/admin/users}" class="nav-link">
-                    <i class="fa-solid fa-users fs-5"></i>
-                    <span>Customer Accounts</span>
-                </a>
-
-
-            </div>
-
-            <div class="admin-sidebar-footer">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <small class="d-block text-white-50">Administrator</small>
-                        <strong class="text-white small">Admin</strong>
-                    </div>
-                    <a th:href="@{/logout}" class="btn btn-sm btn-outline-danger" title="Logout">
-                        <i class="fa-solid fa-right-from-bracket"></i>
-                    </a>
-                </div>
-            </div>
-        </aside>
+        <!-- Sidebar Fragment -->
+        <div th:replace="~{fragments/admin-sidebar :: sidebar('orders')}"></div>
 
         <!-- Main Content Area -->
         <main class="admin-main-content">

@@ -22,6 +22,7 @@ public class User {
     private String email;
 
     @NotBlank(message = "Password is required")
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private String password;
 
     @Column(unique = true, length = 30)

@@ -20,6 +20,7 @@ public class DataInitializer implements CommandLineRunner {
     private final ReviewRepository reviewRepository;
     private final PaymentRepository paymentRepository;
     private final OrderRepository orderRepository;
+    private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
     public DataInitializer(UserRepository userRepository,
                            CategoryRepository categoryRepository,
@@ -27,7 +28,8 @@ public class DataInitializer implements CommandLineRunner {
                            CouponRepository couponRepository,
                            ReviewRepository reviewRepository,
                            PaymentRepository paymentRepository,
-                           OrderRepository orderRepository) {
+                           OrderRepository orderRepository,
+                           org.springframework.security.crypto.password.PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
         this.productRepository = productRepository;
@@ -35,19 +37,36 @@ public class DataInitializer implements CommandLineRunner {
         this.reviewRepository = reviewRepository;
         this.paymentRepository = paymentRepository;
         this.orderRepository = orderRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public void run(String... args) throws Exception {
-        // 1. Seed or update ONLY Admin User (Customers register dynamically through the application)
+        // 1. Seed or update ONLY Admin User with BCrypt
         userRepository.findByEmail("admin@gmail.com").ifPresentOrElse(adminUser -> {
+            boolean modified = false;
             if (!"Admin".equals(adminUser.getName())) {
                 adminUser.setName("Admin");
+                modified = true;
+            }
+            if (adminUser.getPassword() == null || !adminUser.getPassword().startsWith("$2a$")) {
+                adminUser.setPassword(passwordEncoder.encode("Admin@123"));
+                modified = true;
+            }
+            if (modified) {
                 userRepository.save(adminUser);
             }
         }, () -> {
-            User admin = new User("Admin", "admin@gmail.com", "Admin@123", "+91-9988776655", "Admin HQ, Tech Park, Hyderabad, TS", Role.ROLE_ADMIN);
+            User admin = new User("Admin", "admin@gmail.com", passwordEncoder.encode("Admin@123"), "+91-9988776655", "Admin HQ, Tech Park, Hyderabad, TS", Role.ROLE_ADMIN);
             userRepository.save(admin);
+        });
+
+        // 1b. Seamlessly migrate any existing user plaintext passwords in database to BCrypt
+        userRepository.findAll().forEach(u -> {
+            if (u.getPassword() != null && !u.getPassword().startsWith("$2a$")) {
+                u.setPassword(passwordEncoder.encode(u.getPassword()));
+                userRepository.save(u);
+            }
         });
 
         // 2. Seed Official Product Categories

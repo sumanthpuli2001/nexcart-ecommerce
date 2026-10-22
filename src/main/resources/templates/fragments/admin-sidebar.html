@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <aside th:fragment="sidebar(activePage)" class="admin-sidebar">
+        <div class="admin-sidebar-header">
+            <a th:href="@{/admin/dashboard}" class="text-decoration-none d-flex align-items-center gap-2">
+                <i class="fa-solid fa-crown text-warning fs-3"></i>
+                <span class="fs-4 fw-bold text-white">NexCart</span>
+                <span class="badge bg-danger text-uppercase px-2 py-0.5 ms-1" style="font-size: 0.65rem;">ADMIN</span>
+            </a>
+        </div>
+
+        <div class="admin-sidebar-menu">
+            <div class="sidebar-heading small text-uppercase fw-bold mb-2 ps-2 text-white-50">Operations Menu</div>
+            
+            <a th:href="@{/admin/dashboard}" class="nav-link" th:classappend="${activePage == 'dashboard' ? 'active' : ''}">
+                <i class="fa-solid fa-chart-line fs-5"></i>
+                <span>Dashboard Overview</span>
+            </a>
+
+            <a th:href="@{/admin/products}" class="nav-link" th:classappend="${activePage == 'products' ? 'active' : ''}">
+                <i class="fa-solid fa-boxes-stacked fs-5"></i>
+                <span>Product Catalog</span>
+            </a>
+
+            <a th:href="@{/admin/categories}" class="nav-link" th:classappend="${activePage == 'categories' ? 'active' : ''}">
+                <i class="fa-solid fa-layer-group fs-5"></i>
+                <span>Categories</span>
+            </a>
+
+            <a th:href="@{/admin/orders}" class="nav-link" th:classappend="${activePage == 'orders' ? 'active' : ''}">
+                <i class="fa-solid fa-receipt fs-5"></i>
+                <span>Customer Orders</span>
+            </a>
+
+            <a th:href="@{/admin/coupons}" class="nav-link" th:classappend="${activePage == 'coupons' ? 'active' : ''}">
+                <i class="fa-solid fa-ticket fs-5"></i>
+                <span>Coupons & Promos</span>
+            </a>
+
+            <a th:href="@{/admin/payments}" class="nav-link" th:classappend="${activePage == 'payments' ? 'active' : ''}">
+                <i class="fa-solid fa-wallet fs-5"></i>
+                <span>Payment Transactions</span>
+            </a>
+
+            <a th:href="@{/admin/users}" class="nav-link" th:classappend="${activePage == 'users' ? 'active' : ''}">
+                <i class="fa-solid fa-users fs-5"></i>
+                <span>Customer Accounts</span>
+            </a>
+
+            <div class="sidebar-heading small text-uppercase fw-bold mt-4 mb-2 ps-2 text-white-50">Storefront</div>
+            <a th:href="@{/}" class="nav-link" target="_blank">
+                <i class="fa-solid fa-arrow-up-right-from-square fs-5 text-warning"></i>
+                <span>View Live Storefront</span>
+            </a>
+        </div>
+
+        <div class="admin-sidebar-footer">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="text-truncate">
+                    <small class="d-block text-white-50">Administrator</small>
+                    <strong class="text-white small text-truncate d-block" th:text="${session.LOGGED_IN_USER != null ? session.LOGGED_IN_USER.name : 'Admin'}">Admin</strong>
+                </div>
+                <a th:href="@{/logout}" class="btn btn-sm btn-outline-danger ms-2" title="Logout">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </a>
+            </div>
+        </div>
+    </aside>
+</body>
+</html>
