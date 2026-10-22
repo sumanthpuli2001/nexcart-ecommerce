@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Overview - NexCart Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <div class="admin-wrapper">
+        
+        <!-- Left Sidebar Navigation -->
+        <aside class="admin-sidebar">
+            <div class="admin-sidebar-header">
+                <a th:href="@{/admin/dashboard}" class="text-decoration-none d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-crown text-warning fs-3"></i>
+                    <span class="fs-4 fw-bold text-white">NexCart</span>
+                    <span class="badge bg-danger text-uppercase px-2 py-0.5 ms-1" style="font-size: 0.65rem;">ADMIN</span>
+                </a>
+            </div>
+
+            <div class="admin-sidebar-menu">
+                <div class="sidebar-heading small text-uppercase fw-bold mb-2 ps-2">Main Menu</div>
+                
+                <a th:href="@{/admin/dashboard}" class="nav-link active">
+                    <i class="fa-solid fa-chart-line fs-5"></i>
+                    <span>Dashboard Overview</span>
+                </a>
+
+                <a th:href="@{/admin/products}" class="nav-link">
+                    <i class="fa-solid fa-boxes-stacked fs-5"></i>
+                    <span>Product Catalog</span>
+                </a>
+
+                <a th:href="@{/admin/orders}" class="nav-link">
+                    <i class="fa-solid fa-receipt fs-5"></i>
+                    <span>Customer Orders</span>
+                </a>
+
+                <a th:href="@{/admin/users}" class="nav-link">
+                    <i class="fa-solid fa-users fs-5"></i>
+                    <span>Customer Accounts</span>
+                </a>
+
+
+            </div>
+
+            <div class="admin-sidebar-footer">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <small class="d-block text-white-50">Administrator</small>
+                        <strong class="text-white small">Admin</strong>
+                    </div>
+                    <a th:href="@{/logout}" class="btn btn-sm btn-outline-danger" title="Logout">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="admin-main-content">
+            
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                <div>
+                    <h3 class="fw-bold m-0 text-dark">Executive Dashboard Overview</h3>
+                    <p class="text-muted small m-0">Real-time business performance analytics & metrics</p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <button type="button" class="btn btn-success fw-bold px-3 py-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#analyticsModal">
+                        <i class="fa-solid fa-chart-column me-1"></i> Analytics & Financial Reports
+                    </button>
+                    <a th:href="@{/admin/products/add}" class="btn btn-primary fw-bold px-3 py-2 shadow-sm">
+                        <i class="fa-solid fa-plus me-1"></i> Add Product
+                    </a>
+                    <button onclick="window.history.back()" class="btn btn-outline-secondary fw-bold px-3 py-2">
+                        <i class="fa-solid fa-arrow-left me-1"></i> Back
+                    </button>
+                </div>
+            </div>
+
+            <!-- Clickable Metric Cards Grid -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="metric-card metric-card-clickable bg-metric-1 shadow-sm" data-bs-toggle="modal" data-bs-target="#revenueModal" title="Click to view full revenue transaction list">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="text-white-50 text-uppercase small fw-bold">Total Sales Revenue</span>
+                                <h3 class="fw-bold mt-1 mb-0" th:text="${'₹' + #numbers.formatDecimal(totalSales, 1, 2)}">₹0.00</h3>
+                            </div>
+                            <i class="fa-solid fa-indian-rupee-sign display-5 opacity-50"></i>
+                        </div>
+                        <small class="d-block text-white-50 mt-2" style="font-size: 0.72rem;"><i class="fa-solid fa-list-ul me-1"></i> Click to view detailed sales list ➔</small>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-3">
+                    <div class="metric-card metric-card-clickable bg-metric-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#ordersModal" title="Click to view full order list">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="text-white-50 text-uppercase small fw-bold">Total Orders</span>
+                                <h3 class="fw-bold mt-1 mb-0" th:text="${totalOrders}">0</h3>
+                            </div>
+                            <i class="fa-solid fa-bag-shopping display-5 opacity-50"></i>
+                        </div>
+                        <small class="d-block text-white-50 mt-2" style="font-size: 0.72rem;"><i class="fa-solid fa-list-ul me-1"></i> Click to view detailed order list ➔</small>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="metric-card metric-card-clickable bg-metric-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#productsModal" title="Click to view full product catalog list">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="text-white-50 text-uppercase small fw-bold">Active Products</span>
+                                <h3 class="fw-bold mt-1 mb-0" th:text="${totalProducts}">0</h3>
+                            </div>
+                            <i class="fa-solid fa-boxes-stacked display-5 opacity-50"></i>
+                        </div>
+                        <small class="d-block text-white-50 mt-2" style="font-size: 0.72rem;"><i class="fa-solid fa-list-ul me-1"></i> Click to view product catalog list ➔</small>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="metric-card metric-card-clickable bg-metric-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#customersModal" title="Click to view full customer list">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="text-white-50 text-uppercase small fw-bold">Registered Customers</span>
+                                <h3 class="fw-bold mt-1 mb-0" th:text="${totalUsers}">0</h3>
+                            </div>
+                            <i class="fa-solid fa-users display-5 opacity-50"></i>
+                        </div>
+                        <small class="d-block text-white-50 mt-2" style="font-size: 0.72rem;"><i class="fa-solid fa-list-ul me-1"></i> Click to view customer accounts list ➔</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Customer Orders Table -->
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                <div class="card-header bg-white py-3 px-4 d-flex justify-content-between align-items-center border-0">
+                    <h5 class="fw-bold m-0"><i class="fa-solid fa-clock-rotate-left me-2 text-primary"></i> Recent Customer Orders & Transactions</h5>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle m-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">Tracking Code</th>
+                                <th>Customer Name</th>
+                                <th>Order Total</th>
+                                <th>Fulfillment Status</th>
+                                <th>Order Date</th>
+                                <th class="text-end pe-4">Update</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="order : ${recentOrders}">
+                                <td class="ps-4 fw-bold text-primary" th:text="${order.orderNumber}">ORD-123</td>
+                                <td th:text="${order.user != null ? order.user.name : 'Guest'}">Customer</td>
+                                <td class="fw-bold text-dark" th:text="${'₹' + #numbers.formatDecimal(order.totalAmount, 1, 2)}">₹999.00</td>
+                                <td>
+                                    <span class="badge px-3 py-2 rounded-pill" 
+                                          th:classappend="${order.status.name() == 'DELIVERED' ? 'bg-success' : (order.status.name() == 'SHIPPED' ? 'bg-info' : 'bg-warning text-dark')}"
+                                          th:text="${order.status}">PROCESSING</span>
+                                </td>
+                                <td class="small text-muted" th:text="${#temporals.format(order.createdAt, 'dd-MMM-yyyy HH:mm')}">Date</td>
+                                <td class="text-end pe-4">
+                                    <a th:href="@{/admin/orders}" class="btn btn-sm btn-warning fw-semibold shadow-sm"><i class="fa-solid fa-pen-to-square me-1"></i> Update</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+
+    </div>
+
+    <!-- ==========================================
+         MODAL 1: Total Sales Revenue Details List
+         ========================================== -->
+    <div class="modal fade" id="revenueModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <div class="modal-header bg-primary text-white py-3 px-4">
+                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-indian-rupee-sign me-2"></i> Sales Revenue Breakdown & Transactions</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="alert alert-primary d-flex align-items-center justify-content-between rounded-3 mb-3">
+                        <div>
+                            <span class="d-block small text-uppercase fw-bold">Total Confirmed Sales Revenue</span>
+                            <h3 class="fw-bold m-0" th:text="${'₹' + #numbers.formatDecimal(totalSales, 1, 2)}">₹0.00</h3>
+                        </div>
+                        <i class="fa-solid fa-chart-line fs-1 opacity-50"></i>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Tracking Code</th>
+                                    <th>Customer</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="o : ${allOrders}">
+                                    <td class="fw-bold text-primary" th:text="${o.orderNumber}">ORD-123</td>
+                                    <td th:text="${o.user != null ? o.user.name : 'Guest'}">User</td>
+                                    <td class="fw-bold text-success" th:text="${'₹' + #numbers.formatDecimal(o.totalAmount, 1, 2)}">₹0.00</td>
+                                    <td><span class="badge bg-secondary" th:text="${o.status}">PENDING</span></td>
+                                    <td class="small text-muted" th:text="${#temporals.format(o.createdAt, 'dd-MMM-yyyy HH:mm')}">Date</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light px-4 py-2">
+                    <button type="button" class="btn btn-secondary fw-semibold" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         MODAL 2: Total Orders Detailed List
+         ========================================== -->
+    <div class="modal fade" id="ordersModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <div class="modal-header bg-success text-white py-3 px-4">
+                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-bag-shopping me-2"></i> All Customer Orders List</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Order #</th>
+                                    <th>Customer</th>
+                                    <th>Shipping Address</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="submitted-order-data-row" 
+                                    th:each="o : ${allOrders}"
+                                    th:attr="data-amount=${o.totalAmount},data-status=${o.status.name()},data-date=${#temporals.format(o.createdAt, 'yyyy-MM-dd HH:mm:ss')}">
+                                    <td class="fw-bold text-primary" th:text="${o.orderNumber}">ORD-123</td>
+                                    <td th:text="${o.user != null ? o.user.name : 'Guest'}">User</td>
+                                    <td class="small text-truncate" style="max-width: 180px;" th:text="${o.shippingAddress}">Address</td>
+                                    <td class="fw-bold text-dark" th:text="${'₹' + #numbers.formatDecimal(o.totalAmount, 1, 2)}">₹0.00</td>
+                                    <td><span class="badge bg-info text-dark" th:text="${o.status}">PROCESSING</span></td>
+                                    <td class="small text-muted" th:text="${#temporals.format(o.createdAt, 'dd-MMM-yyyy HH:mm')}">Date</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light px-4 py-2">
+                    <a th:href="@{/admin/orders}" class="btn btn-success fw-semibold"><i class="fa-solid fa-arrow-right me-1"></i> Manage Orders</a>
+                    <button type="button" class="btn btn-secondary fw-semibold" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         MODAL 3: Active Products Catalog List
+         ========================================== -->
+    <div class="modal fade" id="productsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <div class="modal-header bg-warning text-dark py-3 px-4">
+                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-boxes-stacked me-2"></i> Active Product Catalog List</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Product Name</th>
+                                    <th>Category</th>
+                                    <th>Price</th>
+                                    <th>Stock</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="p : ${allProducts}">
+                                    <td class="fw-bold" th:text="${'#' + p.id}">#1</td>
+                                    <td class="fw-bold text-dark" th:text="${p.name}">Product Name</td>
+                                    <td><span class="badge bg-light text-dark border" th:text="${p.category != null ? p.category.name : 'General'}">Category</span></td>
+                                    <td class="fw-bold text-success" th:text="${'₹' + #numbers.formatDecimal(p.price, 1, 2)}">₹0.00</td>
+                                    <td>
+                                        <span class="badge" th:classappend="${p.stockQuantity > 10 ? 'bg-success' : (p.stockQuantity > 0 ? 'bg-warning text-dark' : 'bg-danger')}" 
+                                              th:text="${p.stockQuantity + ' in stock'}">10</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light px-4 py-2">
+                    <a th:href="@{/admin/products}" class="btn btn-warning fw-semibold text-dark"><i class="fa-solid fa-pen-to-square me-1"></i> Manage Products</a>
+                    <button type="button" class="btn btn-secondary fw-semibold" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         MODAL 4: Registered Customer Accounts List
+         ========================================== -->
+    <div class="modal fade" id="customersModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <div class="modal-header bg-primary text-white py-3 px-4">
+                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-users me-2"></i> Registered Customer Accounts List</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>User ID</th>
+                                    <th>Full Name</th>
+                                    <th>Email Address</th>
+                                    <th>Role</th>
+                                    <th>Joined Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="u : ${allUsers}">
+                                    <td class="fw-bold" th:text="${'#' + u.id}">#1</td>
+                                    <td class="fw-bold text-dark" th:text="${u.name}">Full Name</td>
+                                    <td th:text="${u.email}">email@example.com</td>
+                                    <td><span class="badge" th:classappend="${u.role.name() == 'ROLE_ADMIN' ? 'bg-danger' : 'bg-info text-dark'}" th:text="${u.role}">ROLE_CUSTOMER</span></td>
+                                    <td class="small text-muted" th:text="${#temporals.format(u.createdAt, 'dd-MMM-yyyy')}">Date</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light px-4 py-2">
+                    <a th:href="@{/admin/users}" class="btn btn-primary fw-semibold"><i class="fa-solid fa-user-gear me-1"></i> Manage Users</a>
+                    <button type="button" class="btn btn-secondary fw-semibold" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         MODAL 5: Financial Analytics & Bar Chart Modal
+         ========================================== -->
+    <div class="modal fade" id="analyticsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <div class="modal-header bg-dark text-white py-3 px-4">
+                    <h5 class="modal-title fw-bold text-warning"><i class="fa-solid fa-chart-column me-2"></i> 📊 Financial Year Sales & Revenue Analytics</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    
+                    <!-- Controls Bar -->
+                    <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-light rounded-3 border flex-wrap gap-2">
+                        <div>
+                            <span class="fw-bold text-dark d-block">Select Financial Year (April - March):</span>
+                            <small class="text-muted">Dynamic performance analytics aggregated directly from database submitted orders</small>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="fySelect" class="fw-semibold text-dark mb-0">Financial Year:</label>
+                            <select id="fySelect" class="form-select fw-bold border-primary" style="width: 170px;" onchange="updateAnalyticsData()">
+                                <option value="FY2026" selected>FY 2026-27</option>
+                                <option value="FY2025">FY 2025-26</option>
+                                <option value="FY2024">FY 2024-25</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Bar Chart Container -->
+                    <div class="card border-0 shadow-sm rounded-3 p-3 mb-4 bg-white">
+                        <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-chart-bar text-primary me-2"></i> Monthly Revenue Bar Graph (<span id="fyChartTitle">FY 2026-27</span>)</h6>
+                        <div style="height: 300px; position: relative;">
+                            <canvas id="revenueBarChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Financial Year Monthly Breakdown Table -->
+                    <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+                        <div class="card-header bg-light fw-bold text-dark border-0 py-3 d-flex justify-content-between align-items-center">
+                            <span><i class="fa-solid fa-table me-2 text-info"></i> Detailed Monthly Revenue Breakdown Table</span>
+                            <span class="badge bg-primary rounded-pill px-3 py-1.5" id="submittedOrdersBadge">Calculated from Live Submitted Orders</span>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0 text-center" id="fyBreakdownTable">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th class="text-start ps-4">Financial Month</th>
+                                        <th>Sales Revenue (₹)</th>
+                                        <th>Total Orders</th>
+                                        <th>Avg Order Value (₹)</th>
+                                        <th>Growth vs Prev Month</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Dynamic rows populated from DB orders -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer bg-light px-4 py-2">
+                    <button type="button" class="btn btn-secondary fw-semibold" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let myBarChart = null;
+
+        // Dynamic Financial Analytics calculation from database submitted orders
+        function calculateDynamicFYData() {
+            const fyMap = {
+                'FY2026': {
+                    title: 'FY 2026-27',
+                    startYear: 2026,
+                    months: ['Apr 2026', 'May 2026', 'Jun 2026', 'Jul 2026', 'Aug 2026', 'Sep 2026', 'Oct 2026', 'Nov 2026', 'Dec 2026', 'Jan 2027', 'Feb 2027', 'Mar 2027'],
+                    revenues: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    orders: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                },
+                'FY2025': {
+                    title: 'FY 2025-26',
+                    startYear: 2025,
+                    months: ['Apr 2025', 'May 2025', 'Jun 2025', 'Jul 2025', 'Aug 2025', 'Sep 2025', 'Oct 2025', 'Nov 2025', 'Dec 2025', 'Jan 2026', 'Feb 2026', 'Mar 2026'],
+                    revenues: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    orders: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                },
+                'FY2024': {
+                    title: 'FY 2024-25',
+                    startYear: 2024,
+                    months: ['Apr 2024', 'May 2024', 'Jun 2024', 'Jul 2024', 'Aug 2024', 'Sep 2024', 'Oct 2024', 'Nov 2024', 'Dec 2024', 'Jan 2025', 'Feb 2025', 'Mar 2025'],
+                    revenues: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    orders: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                }
+            };
+
+            const orderRows = document.querySelectorAll('.submitted-order-data-row');
+            orderRows.forEach(row => {
+                const amount = parseFloat(row.getAttribute('data-amount')) || 0;
+                const status = row.getAttribute('data-status') || '';
+                const dateStr = row.getAttribute('data-date') || ''; // "yyyy-MM-dd HH:mm:ss"
+
+                if (status === 'CANCELLED' || !dateStr) return;
+
+                const dateParts = dateStr.split(' ')[0].split('-');
+                if (dateParts.length < 3) return;
+
+                const year = parseInt(dateParts[0], 10);
+                const month = parseInt(dateParts[1], 10);
+
+                let startYear, monthIdx;
+                if (month >= 4) {
+                    startYear = year;
+                    monthIdx = month - 4;
+                } else {
+                    startYear = year - 1;
+                    monthIdx = month + 8;
+                }
+
+                const key = 'FY' + startYear;
+                if (!fyMap[key]) {
+                    const months = [
+                        `Apr ${startYear}`, `May ${startYear}`, `Jun ${startYear}`, `Jul ${startYear}`,
+                        `Aug ${startYear}`, `Sep ${startYear}`, `Oct ${startYear}`, `Nov ${startYear}`,
+                        `Dec ${startYear}`, `Jan ${startYear + 1}`, `Feb ${startYear + 1}`, `Mar ${startYear + 1}`
+                    ];
+                    fyMap[key] = {
+                        title: `FY ${startYear}-${String(startYear + 1).slice(-2)}`,
+                        startYear: startYear,
+                        months: months,
+                        revenues: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        orders: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                    };
+                }
+
+                fyMap[key].revenues[monthIdx] += amount;
+                fyMap[key].orders[monthIdx] += 1;
+            });
+
+            return fyMap;
+        }
+
+        function updateAnalyticsData() {
+            const fyData = calculateDynamicFYData();
+            const selectElem = document.getElementById('fySelect');
+            const selectedFY = selectElem.value || 'FY2026';
+            const data = fyData[selectedFY] || {
+                title: selectedFY,
+                months: ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'],
+                revenues: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                orders: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            };
+
+            document.getElementById('fyChartTitle').innerText = data.title;
+
+            // Update Breakdown Table
+            const tbody = document.querySelector('#fyBreakdownTable tbody');
+            tbody.innerHTML = '';
+
+            let prevRev = 0;
+            data.months.forEach((month, idx) => {
+                const rev = data.revenues[idx];
+                const ord = data.orders[idx];
+                const avg = ord > 0 ? (rev / ord).toFixed(2) : '0.00';
+                
+                let growthHTML = '<span class="badge bg-secondary">-</span>';
+                if (idx > 0 && prevRev > 0) {
+                    const growth = (((rev - prevRev) / prevRev) * 100).toFixed(1);
+                    if (growth >= 0) {
+                        growthHTML = `<span class="badge bg-success"><i class="fa-solid fa-arrow-up me-1"></i>+${growth}%</span>`;
+                    } else {
+                        growthHTML = `<span class="badge bg-danger"><i class="fa-solid fa-arrow-down me-1"></i>${growth}%</span>`;
+                    }
+                }
+                if (rev > 0) prevRev = rev;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="text-start ps-4 fw-bold text-dark">${month}</td>
+                    <td class="fw-bold text-success">₹${rev.toLocaleString('en-IN')}</td>
+                    <td class="fw-semibold text-primary">${ord}</td>
+                    <td class="fw-bold text-dark">₹${parseFloat(avg).toLocaleString('en-IN')}</td>
+                    <td>${growthHTML}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Update Chart
+            if (myBarChart) {
+                myBarChart.data.labels = data.months;
+                myBarChart.data.datasets[0].data = data.revenues;
+                myBarChart.data.datasets[0].label = `Sales Revenue (₹) - ${data.title}`;
+                myBarChart.update();
+            } else {
+                const ctx = document.getElementById('revenueBarChart').getContext('2d');
+                myBarChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.months,
+                        datasets: [{
+                            label: `Sales Revenue (₹) - ${data.title}`,
+                            data: data.revenues,
+                            backgroundColor: 'rgba(79, 70, 229, 0.75)',
+                            borderColor: '#4f46e5',
+                            borderWidth: 2,
+                            borderRadius: 6,
+                            hoverBackgroundColor: 'rgba(79, 70, 229, 0.95)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top',
+                                labels: {
+                                    font: { weight: 'bold' }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return '₹' + (value >= 1000 ? (value / 1000) + 'k' : value);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Initialize chart when Analytics Modal opens
+        document.getElementById('analyticsModal').addEventListener('shown.bs.modal', function () {
+            updateAnalyticsData();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders - NexCart</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+    <div class="customer-wrapper">
+
+        <!-- Left Sidebar Navigation Bar -->
+        <aside class="customer-sidebar">
+            <div class="customer-sidebar-header">
+                <a th:href="@{/}" class="text-decoration-none d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-crown text-warning fs-3"></i>
+                    <span class="fs-4 fw-bold text-white">NexCart</span>
+                    <span class="badge bg-danger text-uppercase px-2 py-0.5 ms-1" style="font-size: 0.65rem;">STORE</span>
+                </a>
+            </div>
+
+            <div class="customer-sidebar-menu">
+                <div class="small text-uppercase text-white-50 fw-bold mb-2 ps-2">Navigation Menu</div>
+                
+                <a th:href="@{/}" class="nav-link">
+                    <i class="fa-solid fa-house fs-5 text-warning"></i>
+                    <span>Shop Catalog</span>
+                </a>
+
+                <a th:href="@{/profile}" class="nav-link">
+                    <i class="fa-solid fa-id-card fs-5 text-info"></i>
+                    <span>Profile Details</span>
+                </a>
+
+                <a th:href="@{/order/history}" class="nav-link active">
+                    <i class="fa-solid fa-truck-ramp-box fs-5 text-success"></i>
+                    <span>My Orders & Tracking</span>
+                </a>
+
+                <a th:href="@{/cart}" class="nav-link">
+                    <i class="fa-solid fa-cart-shopping fs-5 text-primary"></i>
+                    <span>Shopping Cart</span>
+                    <span class="badge bg-danger rounded-pill ms-auto" th:text="${cartItemCount}">0</span>
+                </a>
+
+            </div>
+
+            <div th:if="${session.LOGGED_IN_USER != null}" class="customer-sidebar-footer">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="text-truncate">
+                        <small class="d-block text-white-50">Store Side Portal</small>
+                        <strong class="text-white small text-truncate d-block" th:text="${session.LOGGED_IN_USER.role.name() == 'ROLE_ADMIN' ? 'Store Side Portal' : session.LOGGED_IN_USER.name}">Store Side Portal</strong>
+                    </div>
+                    <a th:href="@{/logout}" class="btn btn-sm btn-outline-danger ms-2" title="Logout">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Right Main Content Area -->
+        <main class="customer-main-content">
+
+            <!-- Top Header Bar -->
+            <div class="d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded-4 shadow-sm border">
+                <div>
+                    <h4 class="fw-bold m-0 text-dark"><i class="fa-solid fa-box-open text-primary me-2"></i> My Order History & Tracking</h4>
+                    <p class="text-muted small m-0">Track live order shipments, view invoice details & payment status</p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <button onclick="window.history.back()" class="btn btn-warning fw-bold px-3 py-2 text-dark shadow-sm">
+                        <i class="fa-solid fa-arrow-left me-1"></i> Back
+                    </button>
+                </div>
+            </div>
+
+        <div th:if="${orders.empty}" class="text-center py-5 card border-0 shadow-sm rounded-4">
+            <i class="fa-solid fa-receipt display-1 text-muted mb-3 opacity-50"></i>
+            <h5>You haven't placed any orders yet.</h5>
+            <a th:href="@{/}" class="btn btn-primary mt-3 px-4">Browse Catalog</a>
+        </div>
+
+        <div th:if="${!orders.empty}">
+            <div class="card border-0 shadow-sm rounded-4 mb-4" th:each="order : ${orders}">
+                <div class="card-header bg-light d-flex flex-wrap justify-content-between align-items-center py-3 px-4 border-0">
+                    <div>
+                        <span class="text-muted me-2">Order Number:</span>
+                        <strong class="text-primary" th:text="${order.orderNumber}">ORD-12345</strong>
+                        <span class="text-muted mx-2">|</span>
+                        <span class="small text-muted" th:text="${#temporals.format(order.createdAt, 'dd-MMM-yyyy HH:mm')}">Date</span>
+                    </div>
+                    <div>
+                        <span class="badge px-3 py-2 rounded-pill" 
+                              th:classappend="${order.status.name() == 'DELIVERED' ? 'bg-success' : (order.status.name() == 'SHIPPED' ? 'bg-info' : 'bg-warning text-dark')}"
+                              th:text="${order.status}">PROCESSING</span>
+                    </div>
+                </div>
+
+                <div class="card-body p-4">
+                    <div class="row align-items-center g-3">
+                        <div class="col-md-8">
+                            <div class="d-flex align-items-center gap-3 mb-2" th:each="item : ${order.items}">
+                                <img th:src="${item.product.imageUrl}" class="rounded-2" style="width: 45px; height: 45px; object-fit: cover;" th:alt="${item.product.name}">
+                                <div>
+                                    <h6 class="mb-0 fw-semibold" th:text="${item.product.name}">Product Name</h6>
+                                    <small class="text-muted" th:text="${'Qty: ' + item.quantity + ' x ₹' + item.unitPrice}">Qty: 1 x ₹999.00</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 text-md-end border-start-md">
+                            <small class="text-muted d-block">Total Paid</small>
+                            <span class="fs-4 fw-bold text-dark" th:text="${'₹' + #numbers.formatDecimal(order.totalAmount, 1, 2)}">₹1,998.00</span>
+                            <small th:if="${order.couponCode != null}" class="d-block text-success small">
+                                <i class="fa-solid fa-tag me-1"></i>Promo: <span th:text="${order.couponCode}"></span> (-₹<span th:text="${#numbers.formatDecimal(order.discountAmount, 1, 2)}"></span>)
+                            </small>
+                            <small class="d-block text-muted mt-1" th:text="${'Payment: ' + order.paymentMethod}">UPI</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

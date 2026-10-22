@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - NexCart</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+    <div class="customer-wrapper">
+
+        <!-- Left Sidebar Navigation Bar -->
+        <aside class="customer-sidebar">
+            <div class="customer-sidebar-header">
+                <a th:href="@{/}" class="text-decoration-none d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-crown text-warning fs-3"></i>
+                    <span class="fs-4 fw-bold text-white">NexCart</span>
+                    <span class="badge bg-danger text-uppercase px-2 py-0.5 ms-1" style="font-size: 0.65rem;">STORE</span>
+                </a>
+            </div>
+
+            <div class="customer-sidebar-menu">
+                <div class="small text-uppercase text-white-50 fw-bold mb-2 ps-2">Navigation Menu</div>
+                
+                <a th:href="@{/}" class="nav-link">
+                    <i class="fa-solid fa-house fs-5 text-warning"></i>
+                    <span>Shop Catalog</span>
+                </a>
+
+                <a th:if="${session.LOGGED_IN_USER != null}" th:href="@{/profile}" class="nav-link">
+                    <i class="fa-solid fa-id-card fs-5 text-info"></i>
+                    <span>Profile Details</span>
+                </a>
+
+                <a th:if="${session.LOGGED_IN_USER != null}" th:href="@{/order/history}" class="nav-link">
+                    <i class="fa-solid fa-truck-ramp-box fs-5 text-success"></i>
+                    <span>My Orders & Tracking</span>
+                </a>
+
+                <a th:href="@{/cart}" class="nav-link active">
+                    <i class="fa-solid fa-cart-shopping fs-5 text-primary"></i>
+                    <span>Shopping Cart</span>
+                    <span class="badge bg-danger rounded-pill ms-auto" th:text="${cartItemCount}">0</span>
+                </a>
+
+            </div>
+
+            <div th:if="${session.LOGGED_IN_USER != null}" class="customer-sidebar-footer">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="text-truncate">
+                        <small class="d-block text-white-50">Store Side Portal</small>
+                        <strong class="text-white small text-truncate d-block" th:text="${session.LOGGED_IN_USER.role.name() == 'ROLE_ADMIN' ? 'Store Side Portal' : session.LOGGED_IN_USER.name}">Store Side Portal</strong>
+                    </div>
+                    <a th:href="@{/logout}" class="btn btn-sm btn-outline-danger ms-2" title="Logout">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Right Main Content Area -->
+        <main class="customer-main-content">
+
+            <!-- Top Header Bar -->
+            <div class="d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded-4 shadow-sm border">
+                <div>
+                    <h4 class="fw-bold m-0 text-dark"><i class="fa-solid fa-credit-card text-primary me-2"></i> Secure Checkout & Order Payment</h4>
+                    <p class="text-muted small m-0"><i class="fa-solid fa-lock text-warning me-1"></i> 256-Bit SSL Encrypted Transaction</p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <button onclick="window.history.back()" class="btn btn-warning fw-bold px-3 py-2 text-dark shadow-sm">
+                        <i class="fa-solid fa-arrow-left me-1"></i> Back
+                    </button>
+                </div>
+            </div>
+
+    <div class="container my-5">
+        <div class="row g-4">
+            
+            <!-- Shipping & Payment Form -->
+            <div class="col-lg-7">
+                <div class="card border-0 shadow-sm rounded-4 p-4">
+                    <h4 class="fw-bold mb-4"><i class="fa-solid fa-truck-fast text-primary me-2"></i> Delivery & Shipping Details</h4>
+
+                    <form th:action="@{/order/place}" th:object="${checkoutForm}" method="post" class="needs-validation" novalidate>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" th:field="*{fullName}" placeholder="John Doe" required minlength="2">
+                            <div class="invalid-feedback">Please enter your full name (at least 2 characters).</div>
+                            <div class="text-danger small" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Email Address <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" th:field="*{email}" placeholder="john@example.com" required pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$">
+                                <div class="invalid-feedback">Please enter a valid email address.</div>
+                                <div class="text-danger small" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Phone Number <span class="text-danger">*</span></label>
+                                <input type="tel" class="form-control" th:field="*{phone}" placeholder="+91-9849012345" required pattern="^(\+91-?)?[0-9]{10}$" maxlength="20">
+                                <div class="invalid-feedback">Please enter a valid mobile number.</div>
+                                <div class="text-danger small" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Street / Flat Address <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" th:field="*{address}" placeholder="123 Main Street, Apt 4B" required minlength="5">
+                            <div class="invalid-feedback">Please enter a complete street address (min 5 characters).</div>
+                            <div class="text-danger small" th:if="${#fields.hasErrors('address')}" th:errors="*{address}"></div>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">City <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" th:field="*{city}" placeholder="Bengaluru" required minlength="2">
+                                <div class="invalid-feedback">Please enter your city.</div>
+                                <div class="text-danger small" th:if="${#fields.hasErrors('city')}" th:errors="*{city}"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">PIN Code <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" th:field="*{zipCode}" placeholder="560001" required pattern="^[0-9]{6}$" maxlength="6">
+                                <div class="invalid-feedback">Please enter a valid 6-digit PIN code.</div>
+                                <div class="text-danger small" th:if="${#fields.hasErrors('zipCode')}" th:errors="*{zipCode}"></div>
+                            </div>
+                        </div>
+
+                        <h4 class="fw-bold mb-3 border-top pt-4"><i class="fa-solid fa-money-bill-wave text-success me-2"></i> Payment Method</h4>
+                        
+                        <div class="form-check p-3 border border-success bg-success-subtle rounded-3 mb-4 d-flex align-items-center">
+                            <input class="form-check-input ms-0 me-3" type="radio" th:field="*{paymentMethod}" id="cod" value="Cash On Delivery" checked required>
+                            <label class="form-check-label fw-bold text-dark d-flex justify-content-between align-items-center w-100 m-0" for="cod">
+                                <div>
+                                    <span class="fs-6 d-block text-dark">Cash On Delivery (COD)</span>
+                                    <small class="text-muted fw-normal">Pay in cash or scan delivery partner QR code when order is received at your doorstep</small>
+                                </div>
+                                <i class="fa-solid fa-money-bill-wave text-success fs-3"></i>
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-warning btn-lg w-100 py-3 fw-bold fs-5 text-dark">
+                            <i class="fa-solid fa-lock me-2"></i> Confirm & Place Order
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Order Summary Sidebar -->
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white sticky-top" style="top: 100px;">
+                    <h5 class="fw-bold mb-3">Order Items (<span th:text="${cart.totalItemsCount}">0</span>)</h5>
+
+                    <div class="mb-3" style="max-height: 280px; overflow-y: auto;">
+                        <div class="d-flex align-items-center gap-3 mb-3 border-bottom pb-2" th:each="item : ${cart.items}">
+                            <img th:src="${item.product.imageUrl}" class="rounded-2" style="width: 50px; height: 50px; object-fit: cover;" th:alt="${item.product.name}">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-0 text-truncate" style="max-width: 180px;" th:text="${item.product.name}">Product</h6>
+                                <small class="text-muted" th:text="${'Qty: ' + item.quantity}">Qty: 1</small>
+                            </div>
+                            <span class="fw-bold" th:text="${'₹' + #numbers.formatDecimal(item.subtotal, 1, 2)}">₹999.00</span>
+                        </div>
+                    </div>
+
+                    <div class="border-top pt-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Items Subtotal</span>
+                            <span class="fw-semibold" th:text="${'₹' + #numbers.formatDecimal(cart.totalAmount, 1, 2)}">₹999.00</span>
+                        </div>
+
+                        <!-- Coupon Promo Code Section -->
+                        <div class="my-3 p-3 bg-light rounded-3 border">
+                            <div th:if="${couponSuccess}" class="alert alert-success py-1 px-2 small mb-2" th:text="${couponSuccess}"></div>
+                            <div th:if="${couponError}" class="alert alert-danger py-1 px-2 small mb-2" th:text="${couponError}"></div>
+
+                            <div th:if="${cart.couponCode == null}">
+                                <label class="form-label small fw-bold text-dark m-0 mb-1"><i class="fa-solid fa-tags text-primary me-1"></i> Have a Promo Code?</label>
+                                <form th:action="@{/checkout/apply-coupon}" method="post" class="d-flex gap-2">
+                                    <input type="text" name="code" class="form-control form-control-sm text-uppercase fw-semibold" placeholder="e.g. FESTIVE20" required>
+                                    <button type="submit" class="btn btn-sm btn-primary fw-bold px-3">Apply</button>
+                                </form>
+                                <div class="mt-2">
+                                    <small class="text-muted d-block mb-1">Available Coupons:</small>
+                                    <span class="badge bg-white text-primary border me-1 cursor-pointer" onclick="document.querySelector('input[name=code]').value='WELCOME10'">WELCOME10 (-10%)</span>
+                                    <span class="badge bg-white text-primary border me-1 cursor-pointer" onclick="document.querySelector('input[name=code]').value='FESTIVE20'">FESTIVE20 (-20%)</span>
+                                    <span class="badge bg-white text-primary border cursor-pointer" onclick="document.querySelector('input[name=code]').value='NEXCART50'">NEXCART50 (-50%)</span>
+                                </div>
+                            </div>
+
+                            <div th:if="${cart.couponCode != null}" class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="badge bg-success-subtle text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Coupon Applied: <span th:text="${cart.couponCode}"></span></span>
+                                    <small class="d-block text-success fw-semibold mt-1">Discount: ₹<span th:text="${#numbers.formatDecimal(cart.discountAmount, 1, 2)}"></span></small>
+                                </div>
+                                <form th:action="@{/checkout/remove-coupon}" method="post">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div th:if="${cart.discountAmount != null and cart.discountAmount > 0}" class="d-flex justify-content-between mb-2 text-success">
+                            <span class="fw-semibold">Coupon Discount</span>
+                            <span class="fw-bold" th:text="${'- ₹' + #numbers.formatDecimal(cart.discountAmount, 1, 2)}">- ₹100.00</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Express Shipping</span>
+                            <span class="text-success fw-bold">FREE</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between">
+                            <span class="fs-5 fw-bold">Total Payable</span>
+                            <span class="fs-4 fw-bold text-primary" th:text="${'₹' + #numbers.formatDecimal(cart.finalAmount, 1, 2)}">₹999.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        (function () {
+            'use strict';
+            const forms = document.querySelectorAll('.needs-validation');
+            Array.from(forms).forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        })();
+    </script>
+</body>
+</html>

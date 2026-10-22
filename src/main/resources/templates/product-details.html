@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${product.name + ' - NexCart'}">Product Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+    <div class="customer-wrapper">
+
+        <!-- Left Sidebar Navigation Bar -->
+        <aside class="customer-sidebar">
+            <div class="customer-sidebar-header">
+                <a th:href="@{/}" class="text-decoration-none d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-crown text-warning fs-3"></i>
+                    <span class="fs-4 fw-bold text-white">NexCart</span>
+                    <span class="badge bg-danger text-uppercase px-2 py-0.5 ms-1" style="font-size: 0.65rem;">STORE</span>
+                </a>
+            </div>
+
+            <div class="customer-sidebar-menu">
+                <div class="small text-uppercase text-white-50 fw-bold mb-2 ps-2">Navigation Menu</div>
+                
+                <a th:href="@{/}" class="nav-link active">
+                    <i class="fa-solid fa-house fs-5 text-warning"></i>
+                    <span>Shop Catalog</span>
+                </a>
+
+                <a th:if="${session.LOGGED_IN_USER != null}" th:href="@{/profile}" class="nav-link">
+                    <i class="fa-solid fa-id-card fs-5 text-info"></i>
+                    <span>Profile Details</span>
+                </a>
+
+                <a th:if="${session.LOGGED_IN_USER != null}" th:href="@{/order/history}" class="nav-link">
+                    <i class="fa-solid fa-truck-ramp-box fs-5 text-success"></i>
+                    <span>My Orders & Tracking</span>
+                </a>
+
+                <a th:href="@{/cart}" class="nav-link">
+                    <i class="fa-solid fa-cart-shopping fs-5 text-primary"></i>
+                    <span>Shopping Cart</span>
+                    <span class="badge bg-danger rounded-pill ms-auto" th:text="${cartItemCount}">0</span>
+                </a>
+
+            </div>
+
+            <div th:if="${session.LOGGED_IN_USER != null}" class="customer-sidebar-footer">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="text-truncate">
+                        <small class="d-block text-white-50">Store Side Portal</small>
+                        <strong class="text-white small text-truncate d-block" th:text="${session.LOGGED_IN_USER.role.name() == 'ROLE_ADMIN' ? 'Store Side Portal' : session.LOGGED_IN_USER.name}">Store Side Portal</strong>
+                    </div>
+                    <a th:href="@{/logout}" class="btn btn-sm btn-outline-danger ms-2" title="Logout">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </a>
+                </div>
+            </div>
+            <div th:if="${session.LOGGED_IN_USER == null}" class="customer-sidebar-footer text-center">
+                <small class="d-block text-white-50 mb-2">Store Side Portal</small>
+                <a th:href="@{/login}" class="btn btn-sm btn-warning w-100 fw-bold text-dark mb-2"><i class="fa-solid fa-right-to-bracket me-1"></i> Sign In</a>
+                <a th:href="@{/register}" class="btn btn-sm btn-outline-light w-100 fw-bold">Register</a>
+            </div>
+        </aside>
+
+        <!-- Right Main Content Area -->
+        <main class="customer-main-content">
+
+            <!-- Top Header Bar -->
+            <div class="d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded-4 shadow-sm border">
+                <div>
+                    <h4 class="fw-bold m-0 text-dark"><i class="fa-solid fa-box text-primary me-2"></i> Product Information</h4>
+                    <p class="text-muted small m-0">Detailed specifications, warranty & pricing in ₹</p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <button onclick="window.history.back()" class="btn btn-warning fw-bold px-3 py-2 text-dark shadow-sm">
+                        <i class="fa-solid fa-arrow-left me-1"></i> Back
+                    </button>
+                </div>
+            </div>
+
+    <div class="container my-5">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/}" class="text-decoration-none">Home</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/category/{id}(id=${product.category.id})}" th:text="${product.category.name}" class="text-decoration-none">Category</a></li>
+                <li class="breadcrumb-item active" th:text="${product.name}">Product</li>
+            </ol>
+        </nav>
+
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="row g-0">
+                <div class="col-md-6 bg-light p-4 text-center d-flex align-items-center justify-content-center">
+                    <img th:src="${product.imageUrl}" class="img-fluid rounded-3 shadow-sm max-h-400" th:alt="${product.name}" style="max-height: 400px; object-fit: contain;" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&amp;fit=crop&amp;w=600&amp;q=80';">
+                </div>
+                <div class="col-md-6 p-4 p-md-5 d-flex flex-column">
+                    <span class="badge bg-primary-subtle text-primary align-self-start mb-2 px-3 py-2 fw-semibold" 
+                          th:text="${product.category.name}">Category</span>
+                    
+                    <h2 class="fw-bold mb-2" th:text="${product.name}">Product Name</h2>
+                    
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="star-rating me-2">
+                            <i class="fa-solid fa-star text-warning"></i>
+                            <span class="fw-bold text-dark me-1" th:text="${product.rating}">4.8</span>
+                        </div>
+                        <span class="text-muted small">| 100% Genuine Brand Warranty Included</span>
+                    </div>
+
+                    <h3 class="fw-bold text-primary mb-4" th:text="${'₹' + #numbers.formatDecimal(product.price, 1, 2)}">₹14,999.00</h3>
+
+                    <p class="text-secondary leading-relaxed mb-4" th:text="${product.description}">Full detailed description of product goes here.</p>
+
+                    <div class="mb-4">
+                        <span class="fw-semibold text-dark">Availability: </span>
+                        <span th:if="${product.stockQuantity > 0}" class="badge bg-success-subtle text-success ms-1">
+                            In Stock (<span th:text="${product.stockQuantity}">10</span> remaining)
+                        </span>
+                        <span th:if="${product.stockQuantity <= 0}" class="badge bg-danger-subtle text-danger ms-1">Out of Stock</span>
+                    </div>
+
+                    <form th:action="@{/cart/add}" method="post" class="mt-auto">
+                        <input type="hidden" name="productId" th:value="${product.id}">
+                        <div class="row g-3 align-items-center">
+                            <div class="col-auto">
+                                <label for="quantity" class="form-label fw-bold m-0">Quantity:</label>
+                            </div>
+                            <div class="col-auto">
+                                <input type="number" id="quantity" name="quantity" class="form-control text-center" value="1" min="1" th:max="${product.stockQuantity}" style="width: 90px;">
+                            </div>
+                            <div class="col">
+                                <button type="submit" class="btn btn-warning text-dark w-100 btn-lg fw-bold" th:disabled="${product.stockQuantity <= 0}">
+                                    <i class="fa-solid fa-cart-plus me-2"></i> Add to Cart
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Reviews & Ratings Section -->
+        <div class="card border-0 shadow-sm rounded-4 mt-5 p-4 p-md-5">
+            <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom flex-wrap gap-2">
+                <div>
+                    <h4 class="fw-bold m-0 text-dark"><i class="fa-solid fa-star text-warning me-2"></i> Verified Customer Reviews</h4>
+                    <p class="text-muted small m-0">Real feedback from authenticated NexCart buyers</p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="fs-4 fw-bold text-dark" th:text="${product.rating}">4.8</span>
+                    <div class="text-warning">
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star-half-stroke"></i>
+                    </div>
+                    <span class="badge bg-secondary-subtle text-secondary" th:text="${#lists.size(reviews) + ' Reviews'}">1 Reviews</span>
+                </div>
+            </div>
+
+            <!-- Write a Review Form -->
+            <div class="card bg-light border-0 rounded-3 p-4 mb-4">
+                <h6 class="fw-bold text-dark mb-3"><i class="fa-regular fa-comment-dots text-primary me-2"></i>Share Your Review</h6>
+                <form th:action="@{/product/{id}/review(id=${product.id})}" method="post">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold text-dark">Your Rating</label>
+                            <select name="rating" class="form-select">
+                                <option value="5" selected>⭐⭐⭐⭐⭐ (5 Stars - Exceptional)</option>
+                                <option value="4">⭐⭐⭐⭐ (4 Stars - Very Good)</option>
+                                <option value="3">⭐⭐⭐ (3 Stars - Average)</option>
+                                <option value="2">⭐⭐ (2 Stars - Below Average)</option>
+                                <option value="1">⭐ (1 Star - Poor)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-7">
+                            <label class="form-label small fw-semibold text-dark">Your Review Feedback</label>
+                            <input type="text" name="comment" class="form-control" placeholder="Tell other customers about performance, quality, and your experience..." required>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary fw-bold w-100 py-2">
+                                <i class="fa-solid fa-paper-plane me-1"></i> Submit
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Reviews List -->
+            <div th:if="${#lists.isEmpty(reviews)}" class="text-center py-4 text-muted">
+                <i class="fa-regular fa-message fs-1 mb-2 text-secondary"></i>
+                <p>No reviews yet for this product. Be the first to share your thoughts!</p>
+            </div>
+
+            <div th:if="${not #lists.isEmpty(reviews)}" class="d-flex flex-column gap-3">
+                <div th:each="rev : ${reviews}" class="p-3 rounded-3 border bg-white">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 36px; height: 36px;">
+                                <span th:text="${#strings.substring(rev.user.name, 0, 1)}">U</span>
+                            </div>
+                            <div>
+                                <span class="fw-bold text-dark" th:text="${rev.user.name}">Customer Name</span>
+                                <span class="badge bg-success-subtle text-success ms-2 small"><i class="fa-solid fa-circle-check me-1"></i>Verified Purchase</span>
+                            </div>
+                        </div>
+                        <div class="text-warning small">
+                            <span th:each="i : ${#numbers.sequence(1, rev.rating)}">★</span>
+                            <span class="text-muted ms-1" th:text="${#temporals.format(rev.createdAt, 'dd MMM yyyy')}">22 Oct 2026</span>
+                        </div>
+                    </div>
+                    <p class="m-0 text-secondary" th:text="${rev.comment}">Review comment goes here.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="py-4 text-center mt-5 bg-dark text-white">
+        <div class="container">
+            <p class="mb-1 fw-bold text-white">NexCart E-Commerce Platform &copy; 2026</p>
+        </div>
+    </footer>
+
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
