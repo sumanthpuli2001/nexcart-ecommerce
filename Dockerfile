@@ -2,13 +2,12 @@
 FROM maven:3.9.6-eclipse-temurin-17-alpine AS build
 WORKDIR /app
 
-# Cache Maven dependencies
+# Copy Maven project descriptor and source files
 COPY pom.xml .
-RUN mvn dependency:go-offline -B
-
-# Copy source code and package application
 COPY src ./src
-RUN mvn clean package -DskipTests
+
+# Build production JAR package skipping test suite execution
+RUN mvn clean package -Dmaven.test.skip=true
 
 # Stage 2: Ultra-lightweight Production JRE 17 Runtime
 FROM eclipse-temurin:17-jre-alpine

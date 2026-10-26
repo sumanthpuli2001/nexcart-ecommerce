@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: nexcart-ecommerce
+    runtime: docker
+    plan: free
+    region: singapore
+    branch: main
+    envVars:
+      - key: PORT
+        value: 8081
+      - key: SPRING_PROFILES_ACTIVE
+        value: cloud
