@@ -10,3 +10,9 @@ services:
         value: 8081
       - key: SPRING_PROFILES_ACTIVE
         value: cloud
+      - key: SPRING_DATASOURCE_URL
+        value: jdbc:mysql://gateway01.ap-northeast-1.prod.aws.tidbcloud.com:4000/nexcart_db?useSSL=true&requireSSL=true&verifyServerCertificate=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - key: SPRING_DATASOURCE_USERNAME
+        value: HVtbf3tQkyxXK4C.root
+      - key: SPRING_DATASOURCE_PASSWORD
+        value: LACrrRIQSQxK1tDU
